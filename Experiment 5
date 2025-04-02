@@ -1,0 +1,73 @@
+import { NgModule, Component, OnInit } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule, Routes, ActivatedRoute, Router } from '@angular/router';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+@Component({
+    selector: 'app-product-list',
+    template: `
+        <h2>Product List</h2>
+        <ul>
+            <li *ngFor="let product of products">
+                {{ product.name }}
+                <button (click)="viewDetails(product.id)">View Details</button>
+            </li>
+        </ul>
+    `
+})
+export class ProductListComponent {
+    products = [
+        { id: 1, name: 'Laptop' },
+        { id: 2, name: 'Smartphone' },
+        { id: 3, name: 'Headphones' }
+    ];
+
+    constructor(private router: Router) {}
+
+    viewDetails(productId: number) {
+        this.router.navigate(['/products', productId]);
+    }
+}
+
+@Component({
+    selector: 'app-product-details',
+    template: `
+        <h2>Product Details</h2>
+        <p>Selected Product ID: {{ productId }}</p>
+        <a routerLink="/products">Back to Products</a>
+    `
+})
+export class ProductDetailsComponent implements OnInit {
+    productId: number | null = null;
+
+    constructor(private route: ActivatedRoute) {}
+
+    ngOnInit() {
+        this.productId = Number(this.route.snapshot.paramMap.get('id'));
+    }
+}
+
+const routes: Routes = [
+    { path: '', redirectTo: 'products', pathMatch: 'full' },
+    { path: 'products', component: ProductListComponent },
+    { path: 'products/:id', component: ProductDetailsComponent }
+];
+
+@Component({
+    selector: 'app-root',
+    template: `
+        <h1>E-Commerce App</h1>
+        <router-outlet></router-outlet>
+    `
+})
+export class AppComponent {}
+
+@NgModule({
+    declarations: [AppComponent, ProductListComponent, ProductDetailsComponent],
+    imports: [BrowserModule, RouterModule.forRoot(routes)],
+    bootstrap: [AppComponent]
+})
+export class AppModule {}
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+    .catch(err => console.error(err));
